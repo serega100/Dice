@@ -1,0 +1,32 @@
+# Здесь можно указать переменные, которые будут использованы в данной конфигурации.
+variables:
+  c1: '%gold%'
+
+# Доступные цвета: %black%, %dark_blue%, %dark_green%, %dark_aqua%, %dark_red%, %gold%, %gray%, %dark_grey%, %blue%,
+# %green%, %aqua%, %red%, %light_purple%, %yellow%, %white%, %bold%, %strikethrough%, %underline%, %italic%, %reset%
+# Также можно использовать цветовые коды в виде &7
+messages:
+  prefix: '%green%[Кости]&r '
+  enemy_is_ignoring: 'Игрок не принимает запросы на игру.'
+  main_hand_should_be_empty: 'Ваша основная рука должна быть пустой.'
+  no_requests: 'Запрос на игру не найден.'
+  you_have_no_money: 'На вашем счёте недостаточно средств для игры.'
+  location_is_not_available: 'Вы находитесь вне игровой зоны.'
+  enemy_location_is_not_available: 'Противник находиться вне игровой зоны.'
+  you_are_already_playing: 'Вы уже играете в кости.'
+  on_request: 'Вы предложили игроку %c1%%player%&r сыграть на %c1%%bet%$.'
+  request_to_send: 'Игрок %c1%%player%&r хочет с вами сыграть на %c1%%bet%'
+  msg_to_accept: 'Для принятия запроса введите %green%/dyes'
+  msg_to_refuse: 'Для отказа от запроса введите %red%/dno.'
+  your_request_accepted: 'Ваш запрос %green%принят.'
+  you_accept_request: 'Вы %green%приняли&r запрос на игру.'
+  game_has_started: 'Игра началась, бросайте кости!'
+  you_disallow_request: 'Вы %red%отклонили&r запрос.'
+  on_requesting_player_quit: '%red%Игрок отменил запрос.'
+  your_request_disallowed: 'Игрок %red%отклонил&r ваш запрос.'
+  you_have_number: 'Вам выпало число %c1%%number%.'
+  dead_head: 'Ничья! Ваша ставка(%c1%$%bet%&r) возвращена.'
+  you_win: 'Вы %green%выиграли&r! Ваш приз: %c1%$%bet%.'
+  you_lose: 'Вы %red%проиграли&r! С вас снято %c1%$%bet%.'
+  ignoring_enable: 'Вы %c1%включили&r игнорирование запросов.'
+  ignoring_disable: 'Вы %c1%отключили&r игнорирование запросов.'

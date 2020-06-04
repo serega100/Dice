@@ -1,0 +1,14 @@
+name: Dice
+main: me.serega100.dice.DicePlugin
+version: '1.0.0'
+softdepend: [Vault, WorldGuard]
+#todo remove if it works
+#api-version: '1.12'
+#commands:
+#  dice:
+#  diceyes:
+#    aliases: [dyes]
+#  diceno:
+#    aliases: [dno]
+#  diceignore:
+#    aliases: [dignore]

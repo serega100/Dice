@@ -1,0 +1,111 @@
+// gradle bukkit - build the project
+
+plugins {
+    id 'java'
+    id 'maven-publish'
+    id 'com.github.johnrengelman.shadow' version '5.2.0'
+}
+
+wrapper {
+    gradleVersion = '5.5'
+}
+
+allprojects {
+    apply plugin: 'java'
+    apply plugin: 'maven'
+    apply plugin: 'idea'
+
+    sourceCompatibility = '1.8'
+    targetCompatibility = '1.8'
+
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        maven { url = 'https://repo.aikar.co/content/groups/aikar/' }
+        maven { url = 'http://maven.sk89q.com/repo/' }
+        maven { url = 'https://jitpack.io' }
+    }
+}
+
+group = 'me.serega100'
+version = '1.0.0'
+compileJava.options.encoding = "UTF-8"
+
+project(':Dice-Bukkit') {
+    dependencies {
+        implementation project(':Dice-NMS')
+        compileOnly 'org.spigotmc:spigot-api:1.12-R0.1-SNAPSHOT'
+        compileOnly 'org.bukkit:craftbukkit:1.12-R0.1-SNAPSHOT'
+
+        compile 'co.aikar:acf-bukkit:0.5.0-SNAPSHOT'
+        compileOnly 'com.github.MilkBowl:VaultAPI:1.7'
+        compileOnly 'com.sk89q.worldguard:worldguard-legacy:6.2'
+        compileOnly 'com.sk89q.worldedit:worldedit-bukkit:6.1.4-SNAPSHOT'
+    }
+}
+
+project(':Dice-NMS') {
+    dependencies {
+        compileOnly 'org.spigotmc:spigot-api:1.12-R0.1-SNAPSHOT'
+        compileOnly 'org.bukkit:craftbukkit:1.12-R0.1-SNAPSHOT'
+    }
+}
+
+project(':Dice-NMS-v1_12_R1') {
+    dependencies {
+        implementation project(':Dice-NMS')
+        compileOnly 'org.spigotmc:spigot-api:1.12-R0.1-SNAPSHOT'
+        compileOnly 'org.bukkit:craftbukkit:1.12-R0.1-SNAPSHOT'
+    }
+}
+
+project(':Dice-NMS-v1_13_R1') {
+    dependencies {
+        implementation project(':Dice-NMS')
+        compileOnly 'org.spigotmc:spigot-api:1.13-R0.1-SNAPSHOT'
+        compileOnly 'org.bukkit:craftbukkit:1.13-R0.1-SNAPSHOT'
+    }
+}
+
+project(':Dice-NMS-v1_13_R2') {
+    dependencies {
+        implementation project(':Dice-NMS')
+        compileOnly 'org.spigotmc:spigot-api:1.13.2-R0.1-SNAPSHOT'
+        compileOnly 'org.bukkit:craftbukkit:1.13.2-R0.1-SNAPSHOT'
+    }
+}
+
+project(':Dice-NMS-v1_14_R1') {
+    dependencies {
+        implementation project(':Dice-NMS')
+        compileOnly 'org.spigotmc:spigot-api:1.14-R0.1-SNAPSHOT'
+        compileOnly 'org.bukkit:craftbukkit:1.14-R0.1-SNAPSHOT'
+    }
+}
+
+project(':Dice-NMS-v1_15_R1') {
+    dependencies {
+        implementation project(':Dice-NMS')
+        compileOnly 'org.spigotmc:spigot-api:1.15-R0.1-SNAPSHOT'
+        compileOnly 'org.bukkit:craftbukkit:1.15-R0.1-SNAPSHOT'
+    }
+}
+
+configurations {
+    bukkit
+}
+
+dependencies {
+    bukkit(project(':Dice-Bukkit'))
+    bukkit(project(':Dice-NMS-v1_12_R1'))
+    bukkit(project(':Dice-NMS-v1_13_R1'))
+    bukkit(project(':Dice-NMS-v1_13_R2'))
+    bukkit(project(':Dice-NMS-v1_14_R1'))
+    bukkit(project(':Dice-NMS-v1_15_R1'))
+}
+
+task bukkit(type: com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar) {
+    from {
+        project.configurations.bukkit
+    }
+}
