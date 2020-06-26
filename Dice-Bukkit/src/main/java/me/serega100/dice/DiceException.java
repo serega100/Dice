@@ -1,5 +1,7 @@
 package me.serega100.dice;
 
+import me.serega100.dice.message.Message;
+import me.serega100.dice.message.MessageBuilder;
 import org.bukkit.entity.Player;
 
 public class DiceException extends Exception {

@@ -1,6 +1,5 @@
 package me.serega100.dice;
 
-import me.serega100.dice.game.DiceGame;
 import me.serega100.dice.game.GameManager;
 import me.serega100.dice.game.MetaUtil;
 import org.bukkit.entity.Player;
@@ -41,7 +40,7 @@ public class EventManager implements Listener {
     @EventHandler(priority = EventPriority.LOWEST)
     public void onInventoryClick(InventoryClickEvent event) {
         Player p = (Player) event.getWhoClicked();
-        if(MetaUtil.isBlocked(p)) {
+        if (MetaUtil.isBlocked(p)) {
             ItemStack item = p.getInventory().getItemInMainHand();
             event.setCancelled(true);
             p.getInventory().setItemInMainHand(item);
@@ -52,7 +51,7 @@ public class EventManager implements Listener {
     @EventHandler(priority = EventPriority.LOWEST)
     public void onInventoryCreative(InventoryCreativeEvent event) {
         Player p = (Player) event.getWhoClicked();
-        if(MetaUtil.isBlocked(p)) {
+        if (MetaUtil.isBlocked(p)) {
             ItemStack item = p.getInventory().getItemInMainHand();
             event.setCancelled(true);
             p.getInventory().setItemInMainHand(item);
@@ -63,8 +62,8 @@ public class EventManager implements Listener {
     @EventHandler
     public void onBuildDiceItem(BlockPlaceEvent event) {
         Player player = event.getPlayer();
-        if(MetaUtil.isBlocked(player)) {
-            if(event.getItemInHand().equals(firstBoneItem)) {
+        if (MetaUtil.isBlocked(player)) {
+            if (event.getItemInHand().equals(firstBoneItem)) {
                 try {
                     manager.onPlaceDiceItem(player, event.getBlockPlaced());
                 } catch (DiceException e) {
@@ -80,12 +79,10 @@ public class EventManager implements Listener {
         if (MetaUtil.hasDiceGame(player)) {
             manager.onPlayerQuit(player);
         }
-        DicePlugin.getInstance().getLogger().info(String.format("%s left from the server", player.getName()));
-        DicePlugin.getInstance().getLogger().info("Plugin is enabled: " + DicePlugin.getInstance().isEnabled());
     }
 
     private <T extends PlayerEvent & Cancellable> void cancelIfPlayerDicing(T event) {
-        if(MetaUtil.isBlocked(event.getPlayer())) {
+        if (MetaUtil.isBlocked(event.getPlayer())) {
             event.setCancelled(true);
         }
     }

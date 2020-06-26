@@ -1,4 +1,4 @@
-package me.serega100.dice;
+package me.serega100.dice.message;
 
 import org.bukkit.entity.Player;
 

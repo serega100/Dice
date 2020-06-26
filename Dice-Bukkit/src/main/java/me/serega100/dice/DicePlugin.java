@@ -99,7 +99,7 @@ public final class DicePlugin extends JavaPlugin implements Listener {
         }
     }
 
-    FileConfiguration getMessageConfig() {
+    public FileConfiguration getMessageConfig() {
         return messageConfig;
     }
 

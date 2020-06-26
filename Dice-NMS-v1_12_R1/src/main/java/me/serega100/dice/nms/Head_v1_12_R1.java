@@ -19,7 +19,6 @@ public class Head_v1_12_R1 extends Head {
     public Head_v1_12_R1(String baseCode) {
         super(baseCode);
     }
-    // todo add HeadNotFoundException
     @Override
     public void setAsBlock(Block block) {
         TileEntitySkull skullTile = (TileEntitySkull)((CraftWorld)block.getWorld()).getHandle().getTileEntity(new BlockPosition(block.getX(), block.getY(), block.getZ()));

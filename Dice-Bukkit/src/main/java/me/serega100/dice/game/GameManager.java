@@ -5,8 +5,10 @@ import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.ApplicableRegionSet;
 import com.sk89q.worldguard.protection.flags.StateFlag;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
-import me.serega100.dice.*;
-import me.serega100.dice.nms.HeadCreator;
+import me.serega100.dice.DiceException;
+import me.serega100.dice.DicePlugin;
+import me.serega100.dice.message.Message;
+import me.serega100.dice.message.MessageBuilder;
 import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -15,7 +17,10 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+import java.util.UUID;
 import java.util.concurrent.locks.Lock;
 
 public class GameManager {
@@ -85,7 +90,7 @@ public class GameManager {
         }
 
         MetaUtil.setBlockMeta(enemy);
-        game.start(); //todo check this to bag
+        game.start();
         giveDiceItem(player);
         giveDiceItem(enemy);
         player.sendMessage(Message.YOUR_REQUEST_ACCEPTED.toString());
@@ -278,12 +283,11 @@ public class GameManager {
     }
 
     private boolean isNotAvailableLocation(Location loc) {
-        // todo null safety
         ApplicableRegionSet regions = container.get(loc.getWorld()).getApplicableRegions(loc);
         for (ProtectedRegion region : regions) {
             StateFlag.State flag = region.getFlag(DicePlugin.DICE_AVAILABLE_FLAG);
             if (flag == null) continue;
-            if(flag.equals(StateFlag.State.ALLOW)) {
+            if (flag.equals(StateFlag.State.ALLOW)) {
                 return false;
             }
         }

@@ -1,5 +1,6 @@
-package me.serega100.dice;
+package me.serega100.dice.message;
 
+import me.serega100.dice.DicePlugin;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;

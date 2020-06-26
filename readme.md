@@ -1,19 +1,14 @@
 # Dice
-Bukkit плагин, добавляющий игру в кости на ваш сервер.
-
-**Актуальная версия плагина:** 1.0.0\
-**Поддерживаемые версии сервера:** 1.12-1.15\
-**Зависимые плагины:** Vault, WorldGuard
+Dice minigame for your Minecraft server.\
+For general information visit the SpigotMC page (coming soon) 
 <!-- **Скачать:** [Google Drive]()\ -->
 <!-- \ -->
 <!-- **Видеоролик:** [YouTube]() -->
-#### Доступные команды
-**/dice** <игрок> <cтавка> - отправить запрос на игру.\
-**/diceyes** - принять запрос и начать игру.\
-**/diceno** - отклонить запрос на игру.\
-**/diceignore** - вкл/откл игнорирование запросов.
 
-#### Permissions
-**dice.*** - доступ ко всем командам плагина\
-**dice.play** - доступ к командам /dice, /diceyes, /diceno.\
-**dice.ignore** - доступ к команде /diceignore.
+## Task list
+- [ ] Add multi-language support
+- [ ] Equal region to play for players
+- [ ] Game timeouts
+- [ ] Publish on SpigotMC
+
+If you have any idea or any problem with the plugin, don't be afraid to issue it.
