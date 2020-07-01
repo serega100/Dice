@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
 
 public enum Message {
     ENEMY_IS_IGNORING,
-    MAIN_HAND_SHOULD_BE_EMPTY,
+    MAIN_HAND_MUST_BE_EMPTY,
     NO_REQUESTS,
     YOU_HAVE_NO_MONEY,
     LOCATION_IS_NOT_AVAILABLE,

@@ -1,0 +1,32 @@
+variables:
+  c1: '%gold%'
+
+# Available colors: %black%, %dark_blue%, %dark_green%, %dark_aqua%, %dark_red%, %gold%, %gray%, %dark_grey%, %blue%,
+# %green%, %aqua%, %red%, %light_purple%, %yellow%, %white%, %bold%, %strikethrough%, %underline%, %italic%, %reset%
+# Also you can use classic color codes like &7
+messages:
+  prefix: '%green%[Dice]&r '
+  enemy_is_ignoring: "The player ignore dice requests."
+  main_hand_must_be_empty: 'Your main hand must be empty.'
+  no_requests: 'You have no requests.'
+  you_have_no_money: "You don't have enough money."
+  location_is_not_available: 'You are outside the game zone.'
+  enemy_location_is_not_available: 'The enemy is outside the game zone.'
+  you_are_already_playing: 'You are already dicing.'
+  on_request: 'You have sent request to dice with %c1%%player%&r for %c1%%bet%$.'
+  request_to_send: 'Player %c1%%player%&r would like to dice with you for %c1%%bet%'
+  msg_to_accept: 'To accept the request enter %green%/dyes'
+  msg_to_refuse: 'To refuse the request enter %red%/dno.'
+  your_request_accepted: 'Your request %green%accepted.'
+  you_accept_request: 'You have %green%accepted&r the request.'
+  game_has_started: 'Game started, roll the dice!'
+  you_disallow_request: 'You have %red%refused&r the request.'
+  on_requesting_player_quit: '%red%The player has refused your request'
+  your_request_disallowed: 'Your request has %red%refused'
+  you_have_number: 'You get number %c1%%number%.'
+  dead_head: 'Dead head! Your bet(%c1%$%bet%&r) was returned.'
+  you_win: 'You %green%win&r! Ваш приз: %c1%$%bet%.'
+  you_lose: 'You %red%lose&r! %c1%$%bet%&r was withdrawn from your balance.'
+  ignoring_enable: 'You have %c1%enabled&r request ignoring.'
+  ignoring_disable: 'You have %c1%disabled&r request ignoring.'
+  on_server_shutdown: 'Server is shutting down, your bet(%bet%) was returned.'

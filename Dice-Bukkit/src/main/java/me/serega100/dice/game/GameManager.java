@@ -220,7 +220,7 @@ public class GameManager {
 
     private void checkHand(Player player) throws DiceException {
         if (player.getInventory().getItemInMainHand().getType() != Material.AIR) {
-            throw new DiceException(player, Message.MAIN_HAND_SHOULD_BE_EMPTY);
+            throw new DiceException(player, Message.MAIN_HAND_MUST_BE_EMPTY);
         }
     }
 

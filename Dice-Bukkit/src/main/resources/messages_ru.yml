@@ -8,7 +8,7 @@ variables:
 messages:
   prefix: '%green%[Кости]&r '
   enemy_is_ignoring: 'Игрок не принимает запросы на игру.'
-  main_hand_should_be_empty: 'Ваша основная рука должна быть пустой.'
+  main_hand_must_be_empty: 'Ваша основная рука должна быть пустой.'
   no_requests: 'Запрос на игру не найден.'
   you_have_no_money: 'На вашем счёте недостаточно средств для игры.'
   location_is_not_available: 'Вы находитесь вне игровой зоны.'
