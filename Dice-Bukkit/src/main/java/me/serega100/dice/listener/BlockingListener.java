@@ -1,5 +1,8 @@
-package me.serega100.dice;
+package me.serega100.dice.listener;
 
+import me.serega100.dice.DiceException;
+import me.serega100.dice.DicePlayer;
+import me.serega100.dice.DicePlugin;
 import me.serega100.dice.game.GameManager;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
@@ -17,7 +20,7 @@ public class BlockingListener implements Listener {
     private final GameManager manager;
     private final ItemStack firstBoneItem = DicePlugin.getInstance().getBoneManager().getBone(1).getAsItem();;
 
-    BlockingListener(GameManager manager) {
+    public BlockingListener(GameManager manager) {
         this.manager = manager;
     }
 
@@ -72,15 +75,6 @@ public class BlockingListener implements Listener {
                     event.setCancelled(true);
                 }
             }
-        }
-    }
-
-    @EventHandler
-    public void onPlayerQuit(PlayerQuitEvent event) {
-        Player player = event.getPlayer();
-        DicePlayer dPlayer = DicePlayer.getDicePlayer(player);
-        if (dPlayer.hasDiceGame()) {
-            manager.onPlayerQuit(player);
         }
     }
 

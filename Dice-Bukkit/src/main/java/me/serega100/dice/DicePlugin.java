@@ -5,6 +5,8 @@ import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.flags.StateFlag;
 import com.sk89q.worldguard.protection.flags.registry.FlagRegistry;
 import me.serega100.dice.game.GameManager;
+import me.serega100.dice.listener.BlockingListener;
+import me.serega100.dice.listener.PlayerListener;
 import me.serega100.dice.nms.HeadCreator;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.configuration.InvalidConfigurationException;
@@ -62,6 +64,8 @@ public final class DicePlugin extends JavaPlugin implements Listener {
         }
 
         gameManager = new GameManager(this);
+        PlayerListener playerListener = new PlayerListener(gameManager);
+        getServer().getPluginManager().registerEvents(playerListener, this);
         BlockingListener blockingListener = new BlockingListener(gameManager);
         getServer().getPluginManager().registerEvents(blockingListener, this);
         BukkitCommandManager cmdManager = new BukkitCommandManager(this);
