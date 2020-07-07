@@ -6,6 +6,7 @@ import com.sk89q.worldguard.protection.ApplicableRegionSet;
 import com.sk89q.worldguard.protection.flags.StateFlag;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import me.serega100.dice.DiceException;
+import me.serega100.dice.DicePlayer;
 import me.serega100.dice.DicePlugin;
 import me.serega100.dice.message.Message;
 import me.serega100.dice.message.MessageBuilder;
@@ -37,124 +38,165 @@ public class GameManager {
     }
 
     public void createGame(Player player, Player enemy, int bet) throws DiceException {
-        checkGaming(player);
-        checkEnemyInIgnoreList(player, enemy);
-        checkHand(player);
-        checkPlayerLocation(player);
-        checkEnemyLocation(player, enemy);
-        checkMoney(player, bet);
+        DicePlayer dPlayer = DicePlayer.getDicePlayer(player);
+        if (dPlayer.isBlocked()) {
+            throw new DiceException(player, Message.YOU_ARE_ALREADY_PLAYING);
+        }
+        if (ignoreList.contains(enemy)) {
+            throw new DiceException(player, Message.ENEMY_IS_IGNORING);
+        }
+        if (player.getInventory().getItemInMainHand().getType() != Material.AIR) {
+            throw new DiceException(player, Message.MAIN_HAND_MUST_BE_EMPTY);
+        }
+        if (isNotAvailableLocation(player.getLocation())) {
+            throw new DiceException(player, Message.LOCATION_IS_NOT_AVAILABLE);
+        }
+        if (isNotAvailableLocation(enemy.getLocation())) {
+            throw new DiceException(player, Message.ENEMY_LOCATION_IS_NOT_AVAILABLE);
+        }
+        if (!plugin.getEconomy().has(player, bet)) {
+            throw new DiceException(player, Message.YOU_HAVE_NO_MONEY);
+        }
 
-        MetaUtil.setBlockMeta(player);
-        DiceGame game = new DiceGame(player, enemy, bet);
-        MetaUtil.setDiceGame(player, enemy, game);
+        DicePlayer dEnemy = DicePlayer.getDicePlayer(enemy);
+        DiceGame game = new DiceGame(dPlayer, dEnemy, bet);
+        dPlayer.setBlocked(true);
+        dPlayer.setDiceGame(game);
+        dEnemy.setDiceGame(game);
 
         new MessageBuilder(Message.ON_REQUEST)
-                .setPlayer(enemy)
+                .setPlayer(dEnemy)
                 .setBet(bet)
-                .send(player);
+                .send(dPlayer);
         new MessageBuilder(Message.REQUEST_TO_SEND)
-                .setPlayer(player)
+                .setPlayer(dPlayer)
                 .setBet(bet)
-                .send(enemy);
+                .send(dEnemy);
         enemy.sendMessage(Message.MSG_TO_ACCEPT.toString());
         enemy.sendMessage(Message.MSG_TO_REFUSE.toString());
     }
 
     public void gameAgree(Player enemy) throws DiceException {
-        checkGaming(enemy);
-        checkGameRequest(enemy);
-        checkHand(enemy);
+        DicePlayer dEnemy = DicePlayer.getDicePlayer(enemy);
+        if (dEnemy.isBlocked()) {
+            throw new DiceException(enemy, Message.YOU_ARE_ALREADY_PLAYING);
+        }
+        if (!dEnemy.hasDiceGame()) {
+            throw new DiceException(dEnemy, Message.NO_REQUESTS);
+        }
+        if (enemy.getInventory().getItemInMainHand().getType() != Material.AIR) {
+            throw new DiceException(enemy, Message.MAIN_HAND_MUST_BE_EMPTY);
+        }
 
-        DiceGame game = MetaUtil.getDiceGame(enemy);
-        Player player = game.getEnemy(enemy);
+
+        DiceGame game = dEnemy.getDiceGame();
+        DicePlayer dPlayer = game.getEnemy(dEnemy);
         int bet = game.getBet();
 
-        EconomyResponse responsePlayer = plugin.getEconomy().withdrawPlayer(player, bet);
+        EconomyResponse responsePlayer = plugin.getEconomy().withdrawPlayer(dPlayer.getPlayer(), bet);
         if (!responsePlayer.transactionSuccess()) {
-            MetaUtil.removeBlockMeta(player);
-            MetaUtil.removeDiceGame(player, enemy);
-            player.sendMessage(Message.YOU_HAVE_NO_MONEY.toString());
-            player.sendMessage(Message.YOU_DISALLOW_REQUEST.toString());
-            enemy.sendMessage(Message.YOUR_REQUEST_DISALLOWED.toString());
+            dPlayer.setBlocked(false);
+            dPlayer.removeDiceGame();
+            dEnemy.removeDiceGame();
+            dPlayer.sendMessage(Message.YOU_HAVE_NO_MONEY);
+            dPlayer.sendMessage(Message.YOU_DISALLOW_REQUEST);
+            dEnemy.sendMessage(Message.YOUR_REQUEST_DISALLOWED);
             return;
         }
 
         EconomyResponse responseEnemy = plugin.getEconomy().withdrawPlayer(enemy, bet);
         if (!responseEnemy.transactionSuccess()) {
-            MetaUtil.removeBlockMeta(player);
-            MetaUtil.removeDiceGame(player, enemy);
-            plugin.getEconomy().depositPlayer(player, bet);
-            enemy.sendMessage(Message.YOU_HAVE_NO_MONEY.toString());
-            player.sendMessage(Message.YOUR_REQUEST_DISALLOWED.toString());
+            dPlayer.setBlocked(false);
+            dPlayer.removeDiceGame();
+            dEnemy.removeDiceGame();
+            plugin.getEconomy().depositPlayer(dPlayer.getPlayer(), bet);
+            dEnemy.sendMessage(Message.YOU_HAVE_NO_MONEY);
+            dPlayer.sendMessage(Message.YOUR_REQUEST_DISALLOWED);
             return;
         }
 
-        MetaUtil.setBlockMeta(enemy);
+        dEnemy.setBlocked(true);
         game.start();
-        giveDiceItem(player);
+        giveDiceItem(dPlayer.getPlayer());
         giveDiceItem(enemy);
-        player.sendMessage(Message.YOUR_REQUEST_ACCEPTED.toString());
-        enemy.sendMessage(Message.YOU_ACCEPT_REQUEST.toString());
-        player.sendMessage(Message.GAME_HAS_STARTED.toString());
-        enemy.sendMessage(Message.GAME_HAS_STARTED.toString());
+        dPlayer.sendMessage(Message.YOUR_REQUEST_ACCEPTED);
+        dEnemy.sendMessage(Message.YOU_ACCEPT_REQUEST);
+        dPlayer.sendMessage(Message.GAME_HAS_STARTED);
+        dEnemy.sendMessage(Message.GAME_HAS_STARTED);
     }
 
     public void gameDisagree(Player enemy) throws DiceException {
-        checkGaming(enemy);
-        checkGameRequest(enemy);
+        DicePlayer dEnemy = DicePlayer.getDicePlayer(enemy);
+        if (dEnemy.isBlocked()) {
+            throw new DiceException(dEnemy, Message.YOU_ARE_ALREADY_PLAYING);
+        }
+        if (!dEnemy.hasDiceGame()) {
+            throw new DiceException(dEnemy, Message.NO_REQUESTS);
+        }
 
-        DiceGame game = MetaUtil.getDiceGame(enemy);
-        Player player = game.getEnemy(enemy);
-        removeData(player, enemy);
-        player.sendMessage(Message.YOUR_REQUEST_DISALLOWED.toString());
-        enemy.sendMessage(Message.YOU_DISALLOW_REQUEST.toString());
+        DiceGame game = dEnemy.getDiceGame();
+        DicePlayer dPlayer = game.getEnemy(dEnemy);
+
+        dPlayer.removeDiceGame();
+        dEnemy.removeDiceGame();
+        dPlayer.setBlocked(false);
+        dEnemy.setBlocked(false);
+
+        dPlayer.sendMessage(Message.YOUR_REQUEST_DISALLOWED);
+        dEnemy.sendMessage(Message.YOU_DISALLOW_REQUEST);
     }
 
     public void onPlaceDiceItem(Player player, Block block) throws DiceException {
-        checkPlayerLocation(player);
+        if (isNotAvailableLocation(player.getLocation())) {
+            throw new DiceException(player, Message.LOCATION_IS_NOT_AVAILABLE);
+        }
 
-        DiceGame game = MetaUtil.getDiceGame(player);
+        DicePlayer dPlayer = DicePlayer.getDicePlayer(player);
+        DiceGame game = dPlayer.getDiceGame();
         int result = randomDice();
         Lock locker = game.getLocker();
 
         plugin.getBoneManager().getBone(result).setAsBlock(block);
         new MessageBuilder(Message.YOU_HAVE_NUMBER)
                 .setNumber(result)
-                .send(player);
+                .send(dPlayer);
         player.getInventory().setItemInMainHand(null);
 
         locker.lock();
-        if(game.getStatus() == DiceGame.Status.FINISHED) {
+        if (game.getStatus() == DiceGame.Status.FINISHED) {
             int result2 = game.getResult();
-            Player enemy = game.getEnemy(player);
+            DicePlayer dEnemy = game.getEnemy(dPlayer);
             int bet = game.getBet();
             if(result > result2) {
                 plugin.getEconomy().depositPlayer(player, bet * 2);
                 new MessageBuilder(Message.YOU_WIN)
                         .setBet(bet)
-                        .send(player);
+                        .send(dPlayer);
                 new MessageBuilder(Message.YOU_LOSE)
                         .setBet(bet)
-                        .send(enemy);
-            }else if(result < result2) {
-                plugin.getEconomy().depositPlayer(enemy, bet * 2);
+                        .send(dEnemy);
+            } else if (result < result2) {
+                plugin.getEconomy().depositPlayer(dEnemy.getPlayer(), bet * 2);
                 new MessageBuilder(Message.YOU_WIN)
                         .setBet(bet)
-                        .send(enemy);
+                        .send(dEnemy);
                 new MessageBuilder(Message.YOU_LOSE)
                         .setBet(bet)
                         .send(player);
-            }else {
+            } else {
                 plugin.getEconomy().depositPlayer(player, bet);
-                plugin.getEconomy().depositPlayer(enemy, bet);
+                plugin.getEconomy().depositPlayer(dEnemy.getPlayer(), bet);
                 new MessageBuilder(Message.DEAD_HEAD)
                         .setBet(bet)
                         .send(player)
-                        .send(enemy);
+                        .send(dEnemy);
             }
-            removeData(player, enemy);
+            dPlayer.removeDiceGame();
+            dPlayer.setBlocked(false);
+            dEnemy.removeDiceGame();
+            dEnemy.setBlocked(false);
             scheduleBlockRemoving(game.getBlock(), block);
-        }else{
+        } else {
             game.finish(block, result);
         }
         locker.unlock();
@@ -180,32 +222,35 @@ public class GameManager {
     }
     
     public void onPlayerQuit(Player player) {
-        DiceGame game = MetaUtil.getDiceGame(player);
-        Player enemy = game.getEnemy(player);
+        DicePlayer dPlayer = DicePlayer.getDicePlayer(player);
+        DiceGame game = DicePlayer.getDicePlayer(player).getDiceGame();
+        DicePlayer dEnemy = game.getEnemy(dPlayer);
         int bet = game.getBet();
-        MetaUtil.removeDiceGame(player, enemy);
+        dPlayer.removeDiceGame();
+        dEnemy.removeDiceGame();
         if (game.getStatus() == DiceGame.Status.REQUESTING) {
-            enemy.sendMessage(Message.ON_REQUESTING_PLAYER_QUIT.toString());
+            dEnemy.sendMessage(Message.ON_REQUESTING_PLAYER_QUIT);
         }
         if (game.getStatus() == DiceGame.Status.STARTED) {
-            plugin.getEconomy().depositPlayer(enemy, bet * 2);
-            enemy.sendMessage(Message.YOU_WIN.toString());
+            plugin.getEconomy().depositPlayer(dEnemy.getPlayer(), bet * 2);
+            dEnemy.sendMessage(Message.YOU_WIN);
         }
     }
 
     public void shutdown() {
         for (Player player : Bukkit.getOnlinePlayers()) {
-            if (MetaUtil.hasDiceGame(player)) {
-                DiceGame game = MetaUtil.getDiceGame(player);
-                Player enemy = game.getEnemy(player);
+            DicePlayer dPlayer = DicePlayer.getDicePlayer(player);
+            if (dPlayer.hasDiceGame()) {
+                DiceGame game = dPlayer.getDiceGame();
+                DicePlayer dEnemy = game.getEnemy(dPlayer);
                 int bet = game.getBet();
                 if (game.getStatus() != DiceGame.Status.REQUESTING) {
                     plugin.getEconomy().depositPlayer(player, bet);
                     plugin.getEconomy().depositPlayer(player, bet);
                     new MessageBuilder(Message.ON_SERVER_SHUTDOWN)
                             .setBet(game.getBet())
-                            .send(player)
-                            .send(enemy);
+                            .send(dPlayer)
+                            .send(dEnemy);
                 }
             }
         }
@@ -217,49 +262,6 @@ public class GameManager {
         plugin.saveConfig();
     }
 
-
-    private void checkHand(Player player) throws DiceException {
-        if (player.getInventory().getItemInMainHand().getType() != Material.AIR) {
-            throw new DiceException(player, Message.MAIN_HAND_MUST_BE_EMPTY);
-        }
-    }
-
-    private void checkMoney(Player player, int bet) throws DiceException {
-        if (!plugin.getEconomy().has(player, bet)) {
-            throw new DiceException(player, Message.YOU_HAVE_NO_MONEY);
-        }
-    }
-
-    private void checkEnemyInIgnoreList(Player player, Player enemy) throws DiceException {
-        if (ignoreList.contains(enemy)) {
-            throw new DiceException(player, Message.ENEMY_IS_IGNORING);
-        }
-    }
-
-    private void checkGaming(Player player) throws DiceException {
-        if (MetaUtil.isBlocked(player)) {
-            throw new DiceException(player, Message.YOU_ARE_ALREADY_PLAYING);
-        }
-    }
-
-    private void checkPlayerLocation(Player player) throws DiceException {
-        if (isNotAvailableLocation(player.getLocation())) {
-            throw new DiceException(player, Message.LOCATION_IS_NOT_AVAILABLE);
-        }
-    }
-
-    private void checkEnemyLocation(Player player, Player enemy) throws DiceException {
-        if (isNotAvailableLocation(enemy.getLocation())) {
-            throw new DiceException(player, Message.ENEMY_LOCATION_IS_NOT_AVAILABLE);
-        }
-    }
-
-    private void checkGameRequest(Player player) throws DiceException {
-        if(!MetaUtil.hasDiceGame(player)) {
-            throw new DiceException(player, Message.NO_REQUESTS);
-        }
-    }
-
     private void giveDiceItem(Player p) {
         p.getInventory().setItemInMainHand(plugin.getBoneManager().getBone(1).getAsItem());
     }
@@ -267,12 +269,6 @@ public class GameManager {
     private int randomDice() {
         Random rand = new Random();
         return rand.nextInt(5) + 1;
-    }
-
-    private void removeData(Player p1, Player p2) {
-        MetaUtil.removeDiceGame(p1, p2);
-        MetaUtil.removeBlockMeta(p1);
-        MetaUtil.removeBlockMeta(p2);
     }
 
     private void scheduleBlockRemoving(Block b1, Block b2) {

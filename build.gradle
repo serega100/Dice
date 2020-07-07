@@ -25,6 +25,10 @@ allprojects {
         maven { url = 'http://maven.sk89q.com/repo/' }
         maven { url = 'https://jitpack.io' }
     }
+
+    dependencies {
+        compile 'org.jetbrains:annotations:16.0.1'
+    }
 }
 
 group = 'me.serega100'

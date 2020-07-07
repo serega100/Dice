@@ -14,12 +14,9 @@ import org.bukkit.event.Listener;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.charset.Charset;
-import java.nio.charset.CharsetDecoder;
 import java.nio.charset.StandardCharsets;
 
 // todo test => first commit => move to gradle
@@ -65,8 +62,8 @@ public final class DicePlugin extends JavaPlugin implements Listener {
         }
 
         gameManager = new GameManager(this);
-        EventManager eventManager = new EventManager(gameManager);
-        getServer().getPluginManager().registerEvents(eventManager, this);
+        BlockingListener blockingListener = new BlockingListener(gameManager);
+        getServer().getPluginManager().registerEvents(blockingListener, this);
         BukkitCommandManager cmdManager = new BukkitCommandManager(this);
         cmdManager.registerCommand(new CommandHandler(cmdManager, gameManager));
     }

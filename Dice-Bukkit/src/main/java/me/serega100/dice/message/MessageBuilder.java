@@ -1,5 +1,6 @@
 package me.serega100.dice.message;
 
+import me.serega100.dice.DicePlayer;
 import org.bukkit.entity.Player;
 
 public class MessageBuilder {
@@ -9,8 +10,8 @@ public class MessageBuilder {
         this.text = msg.toString();
     }
 
-    public MessageBuilder setPlayer(Player p) {
-        text = text.replace("%player%", p.getName());
+    public MessageBuilder setPlayer(DicePlayer dPlayer) {
+        text = text.replace("%player%", dPlayer.getPlayer().getName());
         return this;
     }
 
@@ -24,8 +25,14 @@ public class MessageBuilder {
         return this;
     }
 
+    @Deprecated
     public MessageBuilder send(Player p) {
         p.sendMessage(text);
+        return this;
+    }
+
+    public MessageBuilder send(DicePlayer dPlayer) {
+        dPlayer.getPlayer().sendMessage(text);
         return this;
     }
 }

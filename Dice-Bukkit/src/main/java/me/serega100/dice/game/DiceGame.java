@@ -1,7 +1,7 @@
 package me.serega100.dice.game;
 
+import me.serega100.dice.DicePlayer;
 import org.bukkit.block.Block;
-import org.bukkit.entity.Player;
 
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -9,8 +9,8 @@ import java.util.concurrent.locks.ReentrantLock;
 public class DiceGame {
     public enum Status {REQUESTING, STARTED, FINISHED}
 
-    private final Player player;
-    private final Player enemy;
+    private final DicePlayer player;
+    private final DicePlayer enemy;
     private final int bet;
     private int result;
     private Status status;
@@ -18,7 +18,7 @@ public class DiceGame {
 
     private final Lock locker = new ReentrantLock();
 
-    DiceGame(Player player, Player enemy, int bet) {
+    DiceGame(DicePlayer player, DicePlayer enemy, int bet) {
         this.player = player;
         this.enemy = enemy;
         this.bet = bet;
@@ -35,10 +35,10 @@ public class DiceGame {
         this.result = result;
     }
 
-    public Player getEnemy(Player p) {
-        if(player == p) {
+    public DicePlayer getEnemy(DicePlayer player) {
+        if (this.player.equals(player)) {
             return enemy;
-        }else{
+        } else {
             return player;
         }
     }

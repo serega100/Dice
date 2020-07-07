@@ -1,7 +1,6 @@
 package me.serega100.dice;
 
 import me.serega100.dice.game.GameManager;
-import me.serega100.dice.game.MetaUtil;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.EventHandler;
@@ -14,11 +13,11 @@ import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
 
 // todo equal play zone
-public class EventManager implements Listener {
+public class BlockingListener implements Listener {
     private final GameManager manager;
     private final ItemStack firstBoneItem = DicePlugin.getInstance().getBoneManager().getBone(1).getAsItem();;
 
-    EventManager(GameManager manager) {
+    BlockingListener(GameManager manager) {
         this.manager = manager;
     }
 
@@ -39,30 +38,33 @@ public class EventManager implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onInventoryClick(InventoryClickEvent event) {
-        Player p = (Player) event.getWhoClicked();
-        if (MetaUtil.isBlocked(p)) {
-            ItemStack item = p.getInventory().getItemInMainHand();
+        Player player = (Player) event.getWhoClicked();
+        DicePlayer dPlayer = DicePlayer.getDicePlayer(player);
+        if (dPlayer.isBlocked()) {
+            ItemStack item = player.getInventory().getItemInMainHand();
             event.setCancelled(true);
-            p.getInventory().setItemInMainHand(item);
-            p.closeInventory();
+            player.getInventory().setItemInMainHand(item);
+            player.closeInventory();
         }
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onInventoryCreative(InventoryCreativeEvent event) {
-        Player p = (Player) event.getWhoClicked();
-        if (MetaUtil.isBlocked(p)) {
-            ItemStack item = p.getInventory().getItemInMainHand();
+        Player player = (Player) event.getWhoClicked();
+        DicePlayer dPlayer = DicePlayer.getDicePlayer(player);
+        if (dPlayer.isBlocked()) {
+            ItemStack item = player.getInventory().getItemInMainHand();
             event.setCancelled(true);
-            p.getInventory().setItemInMainHand(item);
-            p.closeInventory();
+            player.getInventory().setItemInMainHand(item);
+            player.closeInventory();
         }
     }
 
     @EventHandler
     public void onBuildDiceItem(BlockPlaceEvent event) {
         Player player = event.getPlayer();
-        if (MetaUtil.isBlocked(player)) {
+        DicePlayer dPlayer = DicePlayer.getDicePlayer(player);
+        if (dPlayer.isBlocked()) {
             if (event.getItemInHand().equals(firstBoneItem)) {
                 try {
                     manager.onPlaceDiceItem(player, event.getBlockPlaced());
@@ -76,13 +78,15 @@ public class EventManager implements Listener {
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
-        if (MetaUtil.hasDiceGame(player)) {
+        DicePlayer dPlayer = DicePlayer.getDicePlayer(player);
+        if (dPlayer.hasDiceGame()) {
             manager.onPlayerQuit(player);
         }
     }
 
     private <T extends PlayerEvent & Cancellable> void cancelIfPlayerDicing(T event) {
-        if (MetaUtil.isBlocked(event.getPlayer())) {
+        DicePlayer dPlayer = DicePlayer.getDicePlayer(event.getPlayer());
+        if (dPlayer.isBlocked()) {
             event.setCancelled(true);
         }
     }

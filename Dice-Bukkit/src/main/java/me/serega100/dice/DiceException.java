@@ -5,11 +5,15 @@ import me.serega100.dice.message.MessageBuilder;
 import org.bukkit.entity.Player;
 
 public class DiceException extends Exception {
-    private final Player player;
+    private final DicePlayer player;
     private final Message message;
 
     public DiceException(Player player, Message message) {
-        super(String.format("The exception was occurred by %s with message %s", player.getName(), message.name()));
+        this(DicePlayer.getDicePlayer(player), message);
+    }
+
+    public DiceException(DicePlayer player, Message message) {
+        super(String.format("The exception was occurred by %s with message %s", player.getPlayer().getName(), message.name()));
         this.player = player;
         this.message = message;
     }
@@ -22,7 +26,7 @@ public class DiceException extends Exception {
         return message;
     }
 
-    public Player getPlayer() {
+    public DicePlayer getPlayer() {
         return player;
     }
 }
