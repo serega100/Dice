@@ -53,9 +53,9 @@ public class DiceGame {
 
     public DicePlayer getEnemy(DicePlayer player) {
         if (this.player.equals(player)) {
-            return enemy;
+            return this.enemy;
         } else {
-            return player;
+            return this.player;
         }
     }
 

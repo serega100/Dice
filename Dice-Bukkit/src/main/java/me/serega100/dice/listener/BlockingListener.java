@@ -16,6 +16,7 @@ import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
 
 public class BlockingListener implements Listener {
+    // todo prohibit block breaking for blocked players
     private final GameManager manager;
     private final ItemStack firstBoneItem = DicePlugin.getInstance().getBoneManager().getBone(1).getAsItem();;
 

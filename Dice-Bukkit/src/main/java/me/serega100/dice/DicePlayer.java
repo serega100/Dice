@@ -56,12 +56,12 @@ public class DicePlayer {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         DicePlayer that = (DicePlayer) o;
-        return player.equals(that.player);
+        return player.getUniqueId().equals(that.player.getUniqueId());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(player);
+        return Objects.hash(player.getUniqueId());
     }
 
     public static void loadDicePlayer(@NotNull Player player) {
