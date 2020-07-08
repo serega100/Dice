@@ -7,7 +7,7 @@ For general information visit the SpigotMC page (coming soon)
 
 ## Task list
 - [x] Add multi-language support
-- [ ] Equal region to play for players
+- [x] Equal region to play for players
 - [ ] Game timeouts
 - [ ] Publish on SpigotMC
 - [ ] Detect server language and set it as default
