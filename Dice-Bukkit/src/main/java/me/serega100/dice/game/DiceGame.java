@@ -1,6 +1,10 @@
 package me.serega100.dice.game;
 
+import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
+import com.sk89q.worldguard.protection.ApplicableRegionSet;
+import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import me.serega100.dice.DicePlayer;
+import org.bukkit.Location;
 import org.bukkit.block.Block;
 
 import java.util.concurrent.locks.Lock;
@@ -9,6 +13,7 @@ import java.util.concurrent.locks.ReentrantLock;
 public class DiceGame {
     public enum Status {REQUESTING, STARTED, FINISHED}
 
+    private final ApplicableRegionSet regions;
     private final DicePlayer player;
     private final DicePlayer enemy;
     private final int bet;
@@ -18,7 +23,8 @@ public class DiceGame {
 
     private final Lock locker = new ReentrantLock();
 
-    DiceGame(DicePlayer player, DicePlayer enemy, int bet) {
+    DiceGame(ApplicableRegionSet regions, DicePlayer player, DicePlayer enemy, int bet) {
+        this.regions = regions;
         this.player = player;
         this.enemy = enemy;
         this.bet = bet;
@@ -33,6 +39,16 @@ public class DiceGame {
         this.status = Status.FINISHED;
         this.block = block;
         this.result = result;
+    }
+
+    public boolean isAvailableLocation(Location loc) {
+        ApplicableRegionSet regionsOnLoc = WorldGuardPlugin.inst().getRegionManager(loc.getWorld()).getApplicableRegions(loc);
+        for (ProtectedRegion region : regionsOnLoc) {
+            if (regions.getRegions().contains(region)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public DicePlayer getEnemy(DicePlayer player) {

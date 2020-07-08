@@ -4,7 +4,6 @@ import com.sk89q.worldguard.bukkit.RegionContainer;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.ApplicableRegionSet;
 import com.sk89q.worldguard.protection.flags.StateFlag;
-import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import me.serega100.dice.DiceException;
 import me.serega100.dice.DicePlayer;
 import me.serega100.dice.DicePlugin;
@@ -12,7 +11,6 @@ import me.serega100.dice.message.Message;
 import me.serega100.dice.message.MessageBuilder;
 import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.block.Block;
@@ -25,6 +23,7 @@ import java.util.UUID;
 import java.util.concurrent.locks.Lock;
 
 public class GameManager {
+    // todo remove heads before server shutdown
     private final DicePlugin plugin;
     private final RegionContainer container = WorldGuardPlugin.inst().getRegionContainer();
     private final List<OfflinePlayer> ignoreList = new ArrayList<>();
@@ -48,18 +47,21 @@ public class GameManager {
         if (player.getInventory().getItemInMainHand().getType() != Material.AIR) {
             throw new DiceException(player, Message.MAIN_HAND_MUST_BE_EMPTY);
         }
-        if (isNotAvailableLocation(player.getLocation())) {
-            throw new DiceException(player, Message.LOCATION_IS_NOT_AVAILABLE);
-        }
-        if (isNotAvailableLocation(enemy.getLocation())) {
-            throw new DiceException(player, Message.ENEMY_LOCATION_IS_NOT_AVAILABLE);
-        }
         if (!plugin.getEconomy().has(player, bet)) {
             throw new DiceException(player, Message.YOU_HAVE_NO_MONEY);
         }
 
+        ApplicableRegionSet regions = container.get(player.getWorld()).getApplicableRegions(player.getLocation());
+        if (regions.queryState(null, DicePlugin.DICE_AVAILABLE_FLAG) != StateFlag.State.ALLOW) {
+            throw new DiceException(player, Message.LOCATION_IS_NOT_AVAILABLE);
+        }
+
         DicePlayer dEnemy = DicePlayer.getDicePlayer(enemy);
-        DiceGame game = new DiceGame(dPlayer, dEnemy, bet);
+        DiceGame game = new DiceGame(regions, dPlayer, dEnemy, bet);
+        if (!game.isAvailableLocation(enemy.getLocation())) {
+            throw new DiceException(player, Message.ENEMY_LOCATION_IS_NOT_AVAILABLE);
+        }
+
         dPlayer.setBlocked(true);
         dPlayer.setDiceGame(game);
         dEnemy.setDiceGame(game);
@@ -147,12 +149,13 @@ public class GameManager {
     }
 
     public void onPlaceDiceItem(Player player, Block block) throws DiceException {
-        if (isNotAvailableLocation(player.getLocation())) {
+        DicePlayer dPlayer = DicePlayer.getDicePlayer(player);
+        DiceGame game = dPlayer.getDiceGame();
+
+        if (!game.isAvailableLocation(block.getLocation())) {
             throw new DiceException(player, Message.LOCATION_IS_NOT_AVAILABLE);
         }
 
-        DicePlayer dPlayer = DicePlayer.getDicePlayer(player);
-        DiceGame game = dPlayer.getDiceGame();
         int result = randomDice();
         Lock locker = game.getLocker();
 
@@ -276,17 +279,5 @@ public class GameManager {
             b1.setType(Material.AIR);
             b2.setType(Material.AIR);
         }, 40L);
-    }
-
-    private boolean isNotAvailableLocation(Location loc) {
-        ApplicableRegionSet regions = container.get(loc.getWorld()).getApplicableRegions(loc);
-        for (ProtectedRegion region : regions) {
-            StateFlag.State flag = region.getFlag(DicePlugin.DICE_AVAILABLE_FLAG);
-            if (flag == null) continue;
-            if (flag.equals(StateFlag.State.ALLOW)) {
-                return false;
-            }
-        }
-        return true;
     }
 }
