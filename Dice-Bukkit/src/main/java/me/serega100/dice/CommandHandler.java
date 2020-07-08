@@ -11,7 +11,7 @@ import co.aikar.commands.bukkit.contexts.OnlinePlayer;
 import me.serega100.dice.game.GameManager;
 import org.bukkit.entity.Player;
 
-public class CommandHandler extends BaseCommand {
+public class CommandHandler extends BaseCommand { // todo multilang acf and syntax
     private final GameManager manager;
 
     CommandHandler(BukkitCommandManager cmdManager, GameManager gameManager) {

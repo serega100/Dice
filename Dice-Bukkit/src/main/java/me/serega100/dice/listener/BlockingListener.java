@@ -15,7 +15,6 @@ import org.bukkit.event.inventory.InventoryCreativeEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
 
-// todo equal play zone
 public class BlockingListener implements Listener {
     private final GameManager manager;
     private final ItemStack firstBoneItem = DicePlugin.getInstance().getBoneManager().getBone(1).getAsItem();;
